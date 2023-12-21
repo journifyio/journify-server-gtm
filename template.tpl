@@ -1,11 +1,19 @@
-﻿___INFO___
+﻿___TERMS_OF_SERVICE___
+
+By creating or modifying this file you agree to Google Tag Manager's Community
+Template Gallery Developer Terms of Service available at
+https://developers.google.com/tag-manager/gallery-tos (or such other URL as
+Google may provide), as modified from time to time.
+
+
+___INFO___
 
 {
   "type": "TAG",
   "id": "cvt_temp_public_id",
   "version": 1,
   "securityGroups": [],
-  "displayName": "Prototype Template",
+  "displayName": "Journify GTM Server-Side Template",
   "brand": {
     "id": "brand_dummy",
     "displayName": "",
@@ -102,7 +110,7 @@ function getEventName() {
     if (!eventName) {
         eventName = getEventData('event');
     }
-  
+
     return eventName;
 }
 
@@ -114,7 +122,7 @@ function getEventType(eventName) {
             break;
         }
     }
-  
+
     return eventType;
 }
 
@@ -130,7 +138,7 @@ function getUserTraits() {
         "user_data.postal_code": "postal_code",
         "user_data.country": "country_code",
     };
-  
+
     const templateTraits =  getEventDataKeys(Object.keys(traitKeysMapping));
 
     const domainTraits = {};
@@ -266,7 +274,7 @@ function getEventProperties() {
         "item_name",
         "achievement_id",
     ];
-  
+
     const properties = getEventDataKeys(propertyKeys);
 
     const nestedProps = getEventData('properties');
@@ -280,7 +288,7 @@ function getEventProperties() {
     }
 
     copyObj(properties, ecommerce);
-  
+
     return properties;
 }
 
