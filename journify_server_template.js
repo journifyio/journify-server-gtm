@@ -1,7 +1,10 @@
 const getEventData = require('getEventData');
+const getTimestampMillis = require('getTimestampMillis');
+const getRemoteAddress = require('getRemoteAddress');
 const sendHttpRequest = require('sendHttpRequest');
 const JSON = require('JSON');
 const log = require('logToConsole');
+const parseUrl = require('parseUrl');
 
 const HTTP_ENDPOINT = "https://t.journify.dev/v1/t";
 
@@ -79,11 +82,10 @@ function getEventProperties() {
 
 function getPageProperties() {
     const pageKeysMapping = {
-        "page_title": "title",
-        "page_hostname": "hostname",
-        "page_location": "location",
-        "page_path": "path",
         "page_referrer": "referrer",
+        "page_title": "title",
+        "page_path": "path",
+        "page_location": "url",
     }
 
     const templatePage =  getEventDataKeys(Object.keys(pageKeysMapping));
@@ -132,6 +134,57 @@ function getUserTraits() {
     return domainTraits;
 }
 
+function getContext(){
+    const context = {
+        userAgent: getEventData('user_agent'),
+        page: getPageProperties(),
+        locale: getEventData('language'),
+        ip: getRemoteAddress(),
+        library: {
+            name: "journifyio-server-gtm",
+        },
+        session: {
+            id: getEventData('ga_session_id'),
+        }
+    }
+
+    const utmCampaign = getUtmCampaign();
+    if (utmCampaign) {
+        context.campaign = utmCampaign;
+    }
+
+    return context;
+}
+
+function getUtmCampaign() {
+    const parsedUrl = parseUrl(getEventData('page_location'));
+    if (parsedUrl && Object.keys(parsedUrl.searchParams).length > 0) {
+        const utmKeysMapping = {
+            "utm_source": "source",
+            "utm_medium": "medium",
+            "utm_campaign": "campaign",
+            "utm_term": "term",
+            "utm_content": "content",
+        }
+
+        let campaignFound = false;
+        const utmCampaign = {};
+
+        for (let key in utmKeysMapping) {
+            const paramValue = parsedUrl.searchParams[key]
+            if (paramValue) {
+                campaignFound = true;
+                const domainKey = utmKeysMapping[key]
+                utmCampaign[domainKey] = paramValue;
+            }
+        }
+
+        return campaignFound ? utmCampaign : null;
+    }
+
+    return null;
+}
+
 function getEventName() {
     let eventName = getEventData('event_name');
     if (!eventName) {
@@ -157,23 +210,27 @@ if (!eventType) {
     return data.gtmOnSuccess();
 }
 
+const timestamp = getTimestampMillis();
+const client_id = getEventData('client_id');
+const user_id = getEventData('user_id');
+const message_id = user_id + client_id + eventName + timestamp;
+
 const event = {
     type: eventType,
-    anonymousId: getEventData('client_id'),
-    userId: getEventData('user_id'),
+    anonymousId: client_id,
+    userId: user_id,
     writeKey: data.write_key,
+    timestamp: new Date(timestamp),
+    messageId : message_id,
     traits: getUserTraits(),
+    context: getContext(),
+    properties: getEventProperties(),
 };
 
 switch (eventType) {
     case 'page':
-        const properties = getEventProperties();
-        const pageProperties = getPageProperties();
-        copyObj(properties, pageProperties);
-
         pageEvent = {
             name: getEventData('page_title'),
-            properties: properties,
         }
 
         copyObj(event, pageEvent);
