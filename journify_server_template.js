@@ -1,3 +1,4 @@
+// import dependencies
 const getEventData = require('getEventData');
 const getTimestampMillis = require('getTimestampMillis');
 const getRemoteAddress = require('getRemoteAddress');
@@ -6,21 +7,128 @@ const JSON = require('JSON');
 const log = require('logToConsole');
 const parseUrl = require('parseUrl');
 
-const HTTP_ENDPOINT = "https://t.journify.dev/v1/t";
+// define functions
+function getEventName() {
+    let eventName = getEventData('event_name');
+    if (!eventName) {
+        eventName = getEventData('event');
+    }
+    return eventName;
+}
 
-function copyObj(target, source) {
-    for (let key in source) {
-        target[key] = source[key];
+function getEventType(eventName) {
+    let eventType = null;
+    for (let i = 0; i < data.event_mappings.length; i++) {
+        if (data.event_mappings[i].event_name === eventName) {
+            eventType = data.event_mappings[i].event_type;
+            break;
+        }
     }
 }
 
-function postCallback(statusCode, headers, body) {
-    log("response", "statusCode: ", statusCode, "body: ", JSON.stringify(body));
-    if (statusCode >= 400) {
-        data.gtmOnFailure();
-    } else {
-        data.gtmOnSuccess();
+function getUserTraits() {
+    const traitKeysMapping = {
+        "user_data.email_address": "email",
+        "user_data.phone_number": "phone",
+        "user_data.first_name": "firstName",
+        "user_data.last_name": "lastName",
+        "user_data.street": "street_address",
+        "user_data.city": "city",
+        "user_data.region": "state_code",
+        "user_data.postal_code": "postal_code",
+        "user_data.country": "country_code",
     }
+    const templateTraits =  getEventDataKeys(Object.keys(traitKeysMapping));
+
+    const domainTraits = {};
+    for (let key in templateTraits) {
+        const domainKey = traitKeysMapping[key];
+        domainTraits[domainKey] = templateTraits[key];
+    }
+
+    return domainTraits;
+}
+
+function getEventDataKeys(keys){
+    const object = {};
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        const value = getEventData(key);
+        if (value) {
+            object[key] = value;
+        }
+    }
+
+    return object
+}
+
+function getContext(){
+    const context = {
+        userAgent: getEventData('user_agent'),
+        page: getPageProperties(),
+        locale: getEventData('language'),
+        ip: getRemoteAddress(),
+        library: {
+            name: "journifyio-server-gtm",
+        },
+        session: {
+            id: getEventData('ga_session_id'),
+        }
+    }
+
+    const utmCampaign = getUtmCampaign();
+    if (utmCampaign) {
+        context.campaign = utmCampaign;
+    }
+
+    return context;
+}
+
+function getPageProperties() {
+    const pageKeysMapping = {
+        "page_referrer": "referrer",
+        "page_title": "title",
+        "page_path": "path",
+        "page_location": "url",
+    }
+
+    const templatePage =  getEventDataKeys(Object.keys(pageKeysMapping));
+    const domainPage = {};
+    for (let key in pageKeysMapping) {
+        const domainKey = pageKeysMapping[key];
+        domainPage[domainKey] = templatePage[key];
+    }
+
+    return domainPage;
+}
+
+function getUtmCampaign() {
+    const parsedUrl = parseUrl(getEventData('page_location'));
+    if (parsedUrl && Object.keys(parsedUrl.searchParams).length > 0) {
+        const utmKeysMapping = {
+            "utm_source": "source",
+            "utm_medium": "medium",
+            "utm_campaign": "campaign",
+            "utm_term": "term",
+            "utm_content": "content",
+        }
+
+        let campaignFound = false;
+        const utmCampaign = {};
+
+        for (let key in utmKeysMapping) {
+            const paramValue = parsedUrl.searchParams[key]
+            if (paramValue) {
+                campaignFound = true;
+                const domainKey = utmKeysMapping[key]
+                utmCampaign[domainKey] = paramValue;
+            }
+        }
+
+        return campaignFound ? utmCampaign : null;
+    }
+
+    return null;
 }
 
 function getEventProperties() {
@@ -80,129 +188,13 @@ function getEventProperties() {
     copyObj(properties, ecommerce);
 }
 
-function getPageProperties() {
-    const pageKeysMapping = {
-        "page_referrer": "referrer",
-        "page_title": "title",
-        "page_path": "path",
-        "page_location": "url",
-    }
-
-    const templatePage =  getEventDataKeys(Object.keys(pageKeysMapping));
-    const domainPage = {};
-    for (let key in pageKeysMapping) {
-        const domainKey = pageKeysMapping[key];
-        domainPage[domainKey] = templatePage[key];
-    }
-
-    return domainPage;
-}
-
-function getEventDataKeys(keys){
-    const object = {};
-    for (let i = 0; i < keys.length; i++) {
-        const key = keys[i];
-        const value = getEventData(key);
-        if (value) {
-            object[key] = value;
-        }
-    }
-
-    return object
-}
-
-function getUserTraits() {
-    const traitKeysMapping = {
-        "user_data.email_address": "email",
-        "user_data.phone_number": "phone",
-        "user_data.first_name": "firstName",
-        "user_data.last_name": "lastName",
-        "user_data.street": "street_address",
-        "user_data.city": "city",
-        "user_data.region": "state_code",
-        "user_data.postal_code": "postal_code",
-        "user_data.country": "country_code",
-    }
-    const templateTraits =  getEventDataKeys(Object.keys(traitKeysMapping));
-
-    const domainTraits = {};
-    for (let key in templateTraits) {
-        const domainKey = traitKeysMapping[key];
-        domainTraits[domainKey] = templateTraits[key];
-    }
-
-    return domainTraits;
-}
-
-function getContext(){
-    const context = {
-        userAgent: getEventData('user_agent'),
-        page: getPageProperties(),
-        locale: getEventData('language'),
-        ip: getRemoteAddress(),
-        library: {
-            name: "journifyio-server-gtm",
-        },
-        session: {
-            id: getEventData('ga_session_id'),
-        }
-    }
-
-    const utmCampaign = getUtmCampaign();
-    if (utmCampaign) {
-        context.campaign = utmCampaign;
-    }
-
-    return context;
-}
-
-function getUtmCampaign() {
-    const parsedUrl = parseUrl(getEventData('page_location'));
-    if (parsedUrl && Object.keys(parsedUrl.searchParams).length > 0) {
-        const utmKeysMapping = {
-            "utm_source": "source",
-            "utm_medium": "medium",
-            "utm_campaign": "campaign",
-            "utm_term": "term",
-            "utm_content": "content",
-        }
-
-        let campaignFound = false;
-        const utmCampaign = {};
-
-        for (let key in utmKeysMapping) {
-            const paramValue = parsedUrl.searchParams[key]
-            if (paramValue) {
-                campaignFound = true;
-                const domainKey = utmKeysMapping[key]
-                utmCampaign[domainKey] = paramValue;
-            }
-        }
-
-        return campaignFound ? utmCampaign : null;
-    }
-
-    return null;
-}
-
-function getEventName() {
-    let eventName = getEventData('event_name');
-    if (!eventName) {
-        eventName = getEventData('event');
-    }
-    return eventName;
-}
-
-function getEventType(eventName) {
-    let eventType = null;
-    for (let i = 0; i < data.event_mappings.length; i++) {
-        if (data.event_mappings[i].event_name === eventName) {
-            eventType = data.event_mappings[i].event_type;
-            break;
-        }
+function copyObj(target, source) {
+    for (let key in source) {
+        target[key] = source[key];
     }
 }
 
+// create event
 const eventName = getEventName();
 const eventType = getEventType(eventName);
 if (!eventType) {
@@ -217,6 +209,7 @@ const message_id = user_id + client_id + eventName + timestamp;
 
 const event = {
     type: eventType,
+    name: eventName,
     anonymousId: client_id,
     userId: user_id,
     writeKey: data.write_key,
@@ -227,30 +220,27 @@ const event = {
     properties: getEventProperties(),
 };
 
-switch (eventType) {
-    case 'page':
-        pageEvent = {
-            name: getEventData('page_title'),
-        }
-
-        copyObj(event, pageEvent);
-        break;
-
-    case 'screen':
-        break;
-
-    case 'track':
-        break;
-
-    case 'identify':
-        break;
+if (eventType === 'page') {
+    event.name = getEventData('page_title');
 }
 
+// send event
+const queryEndpoint = data.api_endpoint && data.api_endpoint.length > 0 ? data.api_endpoint : "https://t.journify.dev/v1/t";
 
-const options = {
+const queryCallback = (statusCode, headers, body) => {
+    log("response", "statusCode: ", statusCode, "body: ", JSON.stringify(body));
+    if (statusCode >= 400) {
+        data.gtmOnFailure();
+    } else {
+        data.gtmOnSuccess();
+    }
+}
+
+const queryOptions = {
     headers: {'content-type': 'application/json'},
     method: 'POST',
     timeout: 2000,
 };
+const queryBody = JSON.stringify(event);
 
-sendHttpRequest(HTTP_ENDPOINT, postCallback, options, JSON.stringify(event));
+sendHttpRequest(queryEndpoint, queryCallback, queryOptions, queryBody);
