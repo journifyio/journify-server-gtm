@@ -1,2 +1,2 @@
 # journify-server-gtm
-The Journify browser template for Google Tag manager server-side.
+The Journify template for Google Tag manager server-side.
