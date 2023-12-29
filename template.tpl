@@ -631,52 +631,73 @@ ___TEMPLATE_PARAMETERS___
   {
     "type": "GROUP",
     "name": "event_properties",
-    "displayName": "Event properties",
+    "displayName": "Additional event properties",
     "groupStyle": "ZIPPY_OPEN",
     "subParams": [
       {
         "type": "SIMPLE_TABLE",
-        "name": "event_props_mapping",
-        "displayName": "Event properties mapping",
+        "name": "additional_event_props",
+        "displayName": "Additional event properties",
         "simpleTableColumns": [
           {
             "defaultValue": "",
-            "displayName": "Source event property key",
-            "name": "src_event_property",
-            "type": "TEXT"
+            "displayName": "Key",
+            "name": "key",
+            "type": "TEXT",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
           },
           {
             "defaultValue": "",
-            "displayName": "Journify event property key",
-            "name": "target_event_property",
-            "type": "TEXT"
+            "displayName": "Value",
+            "name": "value",
+            "type": "TEXT",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
           }
-        ]
+        ],
+        "valueValidators": []
       }
     ]
   },
   {
     "type": "GROUP",
     "name": "page_properties",
-    "displayName": "Page properties",
+    "displayName": "Additional page properties",
     "groupStyle": "ZIPPY_OPEN",
     "subParams": [
       {
         "type": "SIMPLE_TABLE",
-        "name": "page_props_mapping",
-        "displayName": "Page properties mapping",
+        "name": "additional_page_props",
+        "displayName": "Additional page properties",
         "simpleTableColumns": [
           {
             "defaultValue": "",
-            "displayName": "Source event property key",
-            "name": "src_event_property",
-            "type": "TEXT"
+            "displayName": "Key",
+            "name": "key",
+            "type": "TEXT",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
           },
           {
             "defaultValue": "",
-            "displayName": "Journify page property key",
-            "name": "target_event_property",
-            "type": "TEXT"
+            "displayName": "Value",
+            "name": "value",
+            "type": "TEXT",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
           }
         ]
       }
@@ -685,25 +706,35 @@ ___TEMPLATE_PARAMETERS___
   {
     "type": "GROUP",
     "name": "screen_properties",
-    "displayName": "Screen properties",
+    "displayName": "Additional screen properties",
     "groupStyle": "ZIPPY_OPEN",
     "subParams": [
       {
         "type": "SIMPLE_TABLE",
-        "name": "screen_props_mapping",
-        "displayName": "Screen properties mapping",
+        "name": "additional_screen_props",
+        "displayName": "Additional screen properties",
         "simpleTableColumns": [
           {
             "defaultValue": "",
-            "displayName": "Source event property key",
-            "name": "src_event_property",
-            "type": "TEXT"
+            "displayName": "Key",
+            "name": "key",
+            "type": "TEXT",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
           },
           {
             "defaultValue": "",
-            "displayName": "Journify screen property key",
-            "name": "target_event_property",
-            "type": "TEXT"
+            "displayName": "Value",
+            "name": "value",
+            "type": "TEXT",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
           }
         ]
       }
@@ -748,6 +779,41 @@ ___TEMPLATE_PARAMETERS___
         "valueValidators": [
           {
             "type": "NON_EMPTY"
+          }
+        ]
+      },
+      {
+        "type": "SIMPLE_TABLE",
+        "name": "external_ids",
+        "displayName": "External IDs",
+        "simpleTableColumns": [
+          {
+            "defaultValue": "",
+            "displayName": "ID value",
+            "name": "id",
+            "type": "TEXT"
+          },
+          {
+            "defaultValue": "",
+            "displayName": "Type (e.g: phone, email)",
+            "name": "type",
+            "type": "TEXT"
+          },
+          {
+            "defaultValue": "",
+            "displayName": "Collection",
+            "name": "collection",
+            "type": "SELECT",
+            "selectItems": [
+              {
+                "value": "users",
+                "displayValue": "users"
+              },
+              {
+                "value": "accounts",
+                "displayValue": "accounts"
+              }
+            ]
           }
         ]
       },
@@ -992,6 +1058,7 @@ const log = require('logToConsole');
 const parseUrl = require('parseUrl');
 const makeNumber = require('makeNumber');
 const makeTableMap = require('makeTableMap');
+const getAllEventData = require('getAllEventData');
 
 // define functions
 function getEventName() {
@@ -1031,8 +1098,11 @@ function getEventType(eventName) {
 }
 
 function getUserTraits() {
-    const traitKeysMapping = makeTableMap(data.user_traits_mapping, 'source_event_key', 'trait_key');
-    const templateTraits =  getEventDataKeys(Object.keys(traitKeysMapping));
+    const eventData = getAllEventData();
+    log('getUserTraits, eventData: '+ JSON.stringify(eventData));
+
+    const traitKeysMapping = makeTableMap(data.user_traits_mapping || [], 'source_event_key', 'trait_key');
+    const templateTraits =  getEventDataKeys(Object.keys(traitKeysMapping || {}));
 
     const domainTraits = {};
     for (let key in templateTraits) {
@@ -1103,7 +1173,7 @@ function getUtmCampaign() {
     }
 
     const parsedUrl = parseUrl(url);
-    if (parsedUrl && Object.keys(parsedUrl.searchParams).length > 0) {
+    if (parsedUrl && Object.keys(parsedUrl.searchParams || {}).length > 0) {
         const utmKeysMapping = {
             "source": data.utm_source,
             "medium": data.utm_medium,
@@ -1270,27 +1340,23 @@ function getEventProperties(eventType) {
 
     switch (eventType) {
         case 'track':
-            appendProperties(properties, data.event_props_mapping);
+            appendProperties(properties, data.additional_event_props);
             break;
         case 'page':
-            appendProperties(properties, data.page_props_mapping);
+            appendProperties(properties, data.additional_page_props);
             break;
         case 'screen':
-            appendProperties(properties, data.screen_props_mapping);
+            appendProperties(properties, data.additional_screen_props);
             break;
     }
 
     return properties;
 }
 
-function appendProperties(properties, keysObject) {
-    const propsMapping = makeTableMap(keysObject, 'src_event_property', 'target_event_property');
-    for (let srcKey in propsMapping) {
-        const value = getEventData(srcKey);
-        if (value) {
-            const targetKey = propsMapping[srcKey];
-            properties[targetKey] = value;
-        }
+function appendProperties(properties, valuesObject) {
+    for (let i = 0; i < valuesObject.length; i++) {
+        const current = valuesObject[i];
+        properties[current.key] = current.value;
     }
 }
 
@@ -1319,6 +1385,7 @@ const event = {
     anonymousId: getEventData(data.anonymous_id),
     userId: getEventData(data.user_id),
     group_id: getEventData(data.group_id),
+    externalIds: data.external_ids || [],
     writeKey: data.write_key,
     timestampMillis: timestamp,
     messageId : message_id,
