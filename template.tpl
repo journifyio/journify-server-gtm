@@ -660,6 +660,27 @@ ___TEMPLATE_PARAMETERS___
                 "type": "NON_EMPTY"
               }
             ]
+          },
+          {
+            "defaultValue": "event_key",
+            "displayName": "Type",
+            "name": "type",
+            "type": "SELECT",
+            "selectItems": [
+              {
+                "value": "event_key",
+                "displayValue": "Event key"
+              },
+              {
+                "value": "raw_value",
+                "displayValue": "Raw value"
+              }
+            ],
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
           }
         ],
         "valueValidators": []
@@ -698,6 +719,27 @@ ___TEMPLATE_PARAMETERS___
                 "type": "NON_EMPTY"
               }
             ]
+          },
+          {
+            "defaultValue": "event_key",
+            "displayName": "Type",
+            "name": "type",
+            "type": "SELECT",
+            "selectItems": [
+              {
+                "value": "event_key",
+                "displayValue": "Event key"
+              },
+              {
+                "value": "raw value",
+                "displayValue": "Raw value"
+              }
+            ],
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
           }
         ]
       }
@@ -730,6 +772,27 @@ ___TEMPLATE_PARAMETERS___
             "displayName": "Value",
             "name": "value",
             "type": "TEXT",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
+          },
+          {
+            "defaultValue": "event_key",
+            "displayName": "Type",
+            "name": "type",
+            "type": "SELECT",
+            "selectItems": [
+              {
+                "value": "event_key",
+                "displayValue": "Event key"
+              },
+              {
+                "value": "raw_value",
+                "displayValue": "Raw value"
+              }
+            ],
             "valueValidators": [
               {
                 "type": "NON_EMPTY"
@@ -1058,7 +1121,7 @@ const log = require('logToConsole');
 const parseUrl = require('parseUrl');
 const makeNumber = require('makeNumber');
 const makeTableMap = require('makeTableMap');
-const getAllEventData = require('getAllEventData');
+const getCookieValues = require('getCookieValues');
 
 // define functions
 function getEventName() {
@@ -1098,9 +1161,6 @@ function getEventType(eventName) {
 }
 
 function getUserTraits() {
-    const eventData = getAllEventData();
-    log('getUserTraits, eventData: '+ JSON.stringify(eventData));
-
     const traitKeysMapping = makeTableMap(data.user_traits_mapping || [], 'source_event_key', 'trait_key');
     const templateTraits =  getEventDataKeys(Object.keys(traitKeysMapping || {}));
 
@@ -1115,6 +1175,7 @@ function getUserTraits() {
 
 function getEventDataKeys(keys){
     const object = {};
+    keys = keys || [];
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
         const value = getEventData(key);
@@ -1163,6 +1224,13 @@ function getPageProperties() {
         domainPage[key] = templatePage[templateKey];
     }
 
+    if (!domainPage.path) {
+        const parsedUrl = parseUrl(domainPage.url);
+        if (parsedUrl) {
+            domainPage.path = parsedUrl.pathname;
+        }
+    }
+
     return domainPage;
 }
 
@@ -1177,7 +1245,7 @@ function getUtmCampaign() {
         const utmKeysMapping = {
             "source": data.utm_source,
             "medium": data.utm_medium,
-            "campaign": data.utm_campaign,
+            "name": data.utm_campaign,
             "term": data.utm_term,
             "content": data.utm_content,
         };
@@ -1214,7 +1282,6 @@ function getEventProperties(eventType) {
         'cancellation_reason',
         'character',
         'click_timestamp',
-        'client_id',
         'content',
         'content_id',
         'content_type',
@@ -1261,7 +1328,6 @@ function getEventProperties(eventType) {
         'item_variant',
         'items',
         'label',
-        'language',
         'level',
         'level_name',
         'link_classes',
@@ -1279,9 +1345,6 @@ function getEventProperties(eventType) {
         'method',
         'outbound',
         'page_encoding',
-        'page_location',
-        'page_referrer',
-        'page_title',
         'payment_type',
         'previous_first_open_count',
         'previous_gmp_app_id',
@@ -1312,7 +1375,6 @@ function getEventProperties(eventType) {
         'transaction_id',
         'unique_search_term',
         'updated_with_analytics',
-        'user_agent',
         'value',
         'video_current_time',
         'video_duration',
@@ -1354,10 +1416,60 @@ function getEventProperties(eventType) {
 }
 
 function appendProperties(properties, valuesObject) {
+    valuesObject = valuesObject || [];
     for (let i = 0; i < valuesObject.length; i++) {
         const current = valuesObject[i];
-        properties[current.key] = current.value;
+        switch (current.type) {
+            case 'event_key':
+                properties[current.key] = getEventData(current.value);
+                break;
+            case 'raw_value':
+                properties[current.key] = current.value;
+                break;
+        }
     }
+}
+
+function getExternalIDs(userTraits) {
+    const url = getEventData(data.page_url);
+    if (!url) {
+        return null;
+    }
+
+    const parsedUrl = parseUrl(url) || {};
+    const searchParams = parsedUrl.searchParams || {};
+    const potentialExternalIds = {
+        phone: userTraits.phone,
+        email: userTraits.email,
+        facebook_click_id: getCookieValue("_fbc"),
+        facebook_browser_id: getCookieValue("_fbp"),
+        snapchat_scid: getCookieValue("_scid"),
+        snapchat_advertiser_cookie_1: getCookieValue('snapchat_advertiser_cookie_1'),
+        snapchat_click_id: searchParams.ScCid,
+        tiktok_click_id: searchParams.ttclid,
+        tiktok_ttp: searchParams._ttp,
+        twitter_click_id: searchParams.twclid,
+        google_click_id: searchParams.gclid,
+    };
+
+    return Object.entries(potentialExternalIds).reduce(function (accumulator, entry) {
+        const key = entry[0];
+        const value = entry[1];
+        if (value) {
+            accumulator.push({
+                id: value,
+                type: key,
+                collection: "users",
+            });
+        }
+
+        return accumulator;
+    }, data.external_ids || []);
+
+}
+
+function getCookieValue(name) {
+    return getCookieValues(name)[0];
 }
 
 function copyObj(target, source) {
@@ -1376,19 +1488,21 @@ if (!eventType) {
 }
 
 const timestamp = getTimestampMillis();
-const client_id = getEventData('client_id');
-const message_id = getEventData('user_id') + client_id + eventName + timestamp;
+const clientID = getEventData('client_id');
+const userID = getEventData('user_id') || getEventData(data.user_id) || "";
+const messageID = userID + clientID + eventName + timestamp;
 
+const userTraits = getUserTraits();
 const event = {
+    writeKey: data.write_key,
     type: eventType,
+    messageId : messageID,
     event: eventName,
     anonymousId: getEventData(data.anonymous_id),
     userId: getEventData(data.user_id),
     group_id: getEventData(data.group_id),
-    externalIds: data.external_ids || [],
-    writeKey: data.write_key,
     timestampMillis: timestamp,
-    messageId : message_id,
+    externalIds: getExternalIDs(userTraits),
     traits: getUserTraits(),
     context: getContext(),
     properties: getEventProperties(eventType),
@@ -1511,6 +1625,27 @@ ___SERVER_PERMISSIONS___
         },
         {
           "key": "queryParameterAccess",
+          "value": {
+            "type": 1,
+            "string": "any"
+          }
+        }
+      ]
+    },
+    "clientAnnotations": {
+      "isEditedByUser": true
+    },
+    "isRequired": true
+  },
+  {
+    "instance": {
+      "key": {
+        "publicId": "get_cookies",
+        "versionId": "1"
+      },
+      "param": [
+        {
+          "key": "cookieAccess",
           "value": {
             "type": 1,
             "string": "any"
