@@ -588,13 +588,13 @@ ___TEMPLATE_PARAMETERS___
       {
         "type": "GROUP",
         "name": "additional_mappings",
-        "displayName": "Additional mappings",
+        "displayName": "Additional event mappings",
         "groupStyle": "ZIPPY_OPEN",
         "subParams": [
           {
             "type": "SIMPLE_TABLE",
             "name": "additional_events_mapping",
-            "displayName": "Additional events mapping",
+            "displayName": "Additional event mappings",
             "simpleTableColumns": [
               {
                 "defaultValue": "",
@@ -638,114 +638,154 @@ ___TEMPLATE_PARAMETERS___
   },
   {
     "type": "GROUP",
-    "name": "event_properties",
-    "displayName": "Additional event properties",
+    "name": "track_mapping",
+    "displayName": "Track",
     "groupStyle": "ZIPPY_OPEN",
     "subParams": [
       {
-        "type": "SIMPLE_TABLE",
-        "name": "additional_event_props",
-        "displayName": "Additional event properties",
-        "simpleTableColumns": [
+        "type": "TEXT",
+        "name": "event_name_key",
+        "displayName": "Event name event key",
+        "simpleValueType": true,
+        "valueValidators": [
           {
-            "defaultValue": "",
-            "displayName": "Key",
-            "name": "key",
-            "type": "TEXT",
-            "valueValidators": [
-              {
-                "type": "NON_EMPTY"
-              }
-            ]
-          },
-          {
-            "defaultValue": "",
-            "displayName": "Value",
-            "name": "value",
-            "type": "TEXT",
-            "valueValidators": [
-              {
-                "type": "NON_EMPTY"
-              }
-            ]
-          },
-          {
-            "defaultValue": "event_key",
-            "displayName": "Type",
-            "name": "type",
-            "type": "SELECT",
-            "selectItems": [
-              {
-                "value": "event_key",
-                "displayValue": "Event key"
-              },
-              {
-                "value": "raw_value",
-                "displayValue": "Raw value"
-              }
-            ],
-            "valueValidators": [
-              {
-                "type": "NON_EMPTY"
-              }
-            ]
+            "type": "NON_EMPTY"
           }
         ],
-        "valueValidators": []
+        "defaultValue": "event_name"
+      },
+      {
+        "type": "GROUP",
+        "name": "track_properties",
+        "displayName": "Additional event properties",
+        "groupStyle": "ZIPPY_OPEN",
+        "subParams": [
+          {
+            "type": "SIMPLE_TABLE",
+            "name": "additional_track_props",
+            "displayName": "Additional event properties",
+            "simpleTableColumns": [
+              {
+                "defaultValue": "",
+                "displayName": "Key",
+                "name": "key",
+                "type": "TEXT",
+                "valueValidators": [
+                  {
+                    "type": "NON_EMPTY"
+                  }
+                ]
+              },
+              {
+                "defaultValue": "",
+                "displayName": "Value",
+                "name": "value",
+                "type": "TEXT",
+                "valueValidators": [
+                  {
+                    "type": "NON_EMPTY"
+                  }
+                ]
+              },
+              {
+                "defaultValue": "event_key",
+                "displayName": "Type",
+                "name": "type",
+                "type": "SELECT",
+                "selectItems": [
+                  {
+                    "value": "event_key",
+                    "displayValue": "Event key"
+                  },
+                  {
+                    "value": "raw_value",
+                    "displayValue": "Raw value"
+                  }
+                ],
+                "valueValidators": [
+                  {
+                    "type": "NON_EMPTY"
+                  }
+                ]
+              }
+            ],
+            "valueValidators": []
+          }
+        ]
       }
     ]
   },
   {
     "type": "GROUP",
-    "name": "page_properties",
-    "displayName": "Additional page properties",
+    "name": "page_mapping",
+    "displayName": "Page",
     "groupStyle": "ZIPPY_OPEN",
     "subParams": [
       {
-        "type": "SIMPLE_TABLE",
-        "name": "additional_page_props",
+        "type": "TEXT",
+        "name": "page_name_key",
+        "displayName": "Page name event key",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "defaultValue": "page_title"
+      },
+      {
+        "type": "GROUP",
+        "name": "page_properties",
         "displayName": "Additional page properties",
-        "simpleTableColumns": [
+        "groupStyle": "ZIPPY_OPEN",
+        "subParams": [
           {
-            "defaultValue": "",
-            "displayName": "Key",
-            "name": "key",
-            "type": "TEXT",
-            "valueValidators": [
+            "type": "SIMPLE_TABLE",
+            "name": "additional_page_props",
+            "displayName": "Additional page properties",
+            "simpleTableColumns": [
               {
-                "type": "NON_EMPTY"
-              }
-            ]
-          },
-          {
-            "defaultValue": "",
-            "displayName": "Value",
-            "name": "value",
-            "type": "TEXT",
-            "valueValidators": [
-              {
-                "type": "NON_EMPTY"
-              }
-            ]
-          },
-          {
-            "defaultValue": "event_key",
-            "displayName": "Type",
-            "name": "type",
-            "type": "SELECT",
-            "selectItems": [
-              {
-                "value": "event_key",
-                "displayValue": "Event key"
+                "defaultValue": "",
+                "displayName": "Key",
+                "name": "key",
+                "type": "TEXT",
+                "valueValidators": [
+                  {
+                    "type": "NON_EMPTY"
+                  }
+                ]
               },
               {
-                "value": "raw value",
-                "displayValue": "Raw value"
-              }
-            ],
-            "valueValidators": [
+                "defaultValue": "",
+                "displayName": "Value",
+                "name": "value",
+                "type": "TEXT",
+                "valueValidators": [
+                  {
+                    "type": "NON_EMPTY"
+                  }
+                ]
+              },
               {
-                "type": "NON_EMPTY"
+                "defaultValue": "event_key",
+                "displayName": "Type",
+                "name": "type",
+                "type": "SELECT",
+                "selectItems": [
+                  {
+                    "value": "event_key",
+                    "displayValue": "Event key"
+                  },
+                  {
+                    "value": "raw value",
+                    "displayValue": "Raw value"
+                  }
+                ],
+                "valueValidators": [
+                  {
+                    "type": "NON_EMPTY"
+                  }
+                ]
               }
             ]
           }
@@ -755,55 +795,75 @@ ___TEMPLATE_PARAMETERS___
   },
   {
     "type": "GROUP",
-    "name": "screen_properties",
-    "displayName": "Additional screen properties",
+    "name": "screen_mapping",
+    "displayName": "Screen",
     "groupStyle": "ZIPPY_OPEN",
     "subParams": [
       {
-        "type": "SIMPLE_TABLE",
-        "name": "additional_screen_props",
+        "type": "TEXT",
+        "name": "screen_name_key",
+        "displayName": "Screen name event key",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "defaultValue": "screen_name"
+      },
+      {
+        "type": "GROUP",
+        "name": "screen_properties",
         "displayName": "Additional screen properties",
-        "simpleTableColumns": [
+        "groupStyle": "ZIPPY_OPEN",
+        "subParams": [
           {
-            "defaultValue": "",
-            "displayName": "Key",
-            "name": "key",
-            "type": "TEXT",
-            "valueValidators": [
+            "type": "SIMPLE_TABLE",
+            "name": "additional_screen_props",
+            "displayName": "Additional screen properties",
+            "simpleTableColumns": [
               {
-                "type": "NON_EMPTY"
-              }
-            ]
-          },
-          {
-            "defaultValue": "",
-            "displayName": "Value",
-            "name": "value",
-            "type": "TEXT",
-            "valueValidators": [
-              {
-                "type": "NON_EMPTY"
-              }
-            ]
-          },
-          {
-            "defaultValue": "event_key",
-            "displayName": "Type",
-            "name": "type",
-            "type": "SELECT",
-            "selectItems": [
-              {
-                "value": "event_key",
-                "displayValue": "Event key"
+                "defaultValue": "",
+                "displayName": "Key",
+                "name": "key",
+                "type": "TEXT",
+                "valueValidators": [
+                  {
+                    "type": "NON_EMPTY"
+                  }
+                ]
               },
               {
-                "value": "raw_value",
-                "displayValue": "Raw value"
-              }
-            ],
-            "valueValidators": [
+                "defaultValue": "",
+                "displayName": "Value",
+                "name": "value",
+                "type": "TEXT",
+                "valueValidators": [
+                  {
+                    "type": "NON_EMPTY"
+                  }
+                ]
+              },
               {
-                "type": "NON_EMPTY"
+                "defaultValue": "event_key",
+                "displayName": "Type",
+                "name": "type",
+                "type": "SELECT",
+                "selectItems": [
+                  {
+                    "value": "event_key",
+                    "displayValue": "Event key"
+                  },
+                  {
+                    "value": "raw_value",
+                    "displayValue": "Raw value"
+                  }
+                ],
+                "valueValidators": [
+                  {
+                    "type": "NON_EMPTY"
+                  }
+                ]
               }
             ]
           }
@@ -991,18 +1051,6 @@ ___TEMPLATE_PARAMETERS___
       },
       {
         "type": "TEXT",
-        "name": "page_referrer",
-        "displayName": "Referrer event key",
-        "simpleValueType": true,
-        "valueValidators": [
-          {
-            "type": "NON_EMPTY"
-          }
-        ],
-        "defaultValue": "page_referrer"
-      },
-      {
-        "type": "TEXT",
         "name": "page_title",
         "displayName": "Page title event key",
         "simpleValueType": true,
@@ -1012,6 +1060,18 @@ ___TEMPLATE_PARAMETERS___
           }
         ],
         "defaultValue": "page_title"
+      },
+      {
+        "type": "TEXT",
+        "name": "page_url",
+        "displayName": "Page location event key",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "defaultValue": "page_location"
       },
       {
         "type": "TEXT",
@@ -1027,15 +1087,27 @@ ___TEMPLATE_PARAMETERS___
       },
       {
         "type": "TEXT",
-        "name": "page_url",
-        "displayName": "Page location event key",
+        "name": "page_referrer",
+        "displayName": "Referrer event key",
         "simpleValueType": true,
         "valueValidators": [
           {
             "type": "NON_EMPTY"
           }
         ],
-        "defaultValue": "page_location"
+        "defaultValue": "page_referrer"
+      },
+      {
+        "type": "TEXT",
+        "name": "page_search",
+        "displayName": "Query string param key",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "defaultValue": "page_search"
       },
       {
         "type": "TEXT",
@@ -1096,6 +1168,174 @@ ___TEMPLATE_PARAMETERS___
           }
         ],
         "defaultValue": "utm_content"
+      },
+      {
+        "type": "TEXT",
+        "name": "app_name",
+        "displayName": "App name param key",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "defaultValue": "app_name"
+      },
+      {
+        "type": "TEXT",
+        "name": "app_version",
+        "displayName": "App version param key",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "defaultValue": "app_version"
+      },
+      {
+        "type": "TEXT",
+        "name": "device_id",
+        "displayName": "Device ID param key",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "defaultValue": "device_id"
+      },
+      {
+        "type": "TEXT",
+        "name": "device_advertising_id",
+        "displayName": "Device advertising ID param key",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "defaultValue": "device_advertising_id"
+      },
+      {
+        "type": "TEXT",
+        "name": "device_ad_tracking_enabled",
+        "displayName": "Ad tracking is enabled param key",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "defaultValue": "device_ad_tracking_enabled"
+      },
+      {
+        "type": "TEXT",
+        "name": "location_city",
+        "displayName": "City param key",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "defaultValue": "location_city"
+      },
+      {
+        "type": "TEXT",
+        "name": "location_country",
+        "displayName": "Country param key",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "defaultValue": "location_country"
+      },
+      {
+        "type": "TEXT",
+        "name": "location_latitude",
+        "displayName": "Latitude param key",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "defaultValue": "location_latitude"
+      },
+      {
+        "type": "TEXT",
+        "name": "location_longitude",
+        "displayName": "Longitude param key",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "defaultValue": "location_longitude"
+      },
+      {
+        "type": "TEXT",
+        "name": "os_name",
+        "displayName": "OS name param key",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "defaultValue": "os_name"
+      },
+      {
+        "type": "TEXT",
+        "name": "os_version",
+        "displayName": "OS version param key",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "defaultValue": "os_version"
+      },
+      {
+        "type": "TEXT",
+        "name": "screen_width",
+        "displayName": "Screen width param key",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "defaultValue": "screen_width"
+      },
+      {
+        "type": "TEXT",
+        "name": "screen_height",
+        "displayName": "Screen height param key",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "defaultValue": "screen_height"
+      },
+      {
+        "type": "TEXT",
+        "name": "screen_density",
+        "displayName": "Screen density param key",
+        "simpleValueType": true,
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "defaultValue": "screen_density"
       }
     ]
   },
@@ -1133,9 +1373,9 @@ const getCookieValues = require('getCookieValues');
 
 // define functions
 function getEventName() {
-    let eventName = getEventData('event_name');
+    let eventName = getEventData(data.event_name_key);
     if (!eventName) {
-        eventName = getEventData('event');
+        eventName = getEventData('event_name');
     }
 
     return eventName;
@@ -1199,10 +1439,15 @@ function getContext(){
     const context = {
         userAgent: getEventData(data.user_agent),
         page: getPageProperties(),
+        app: getAppProperties(),
+        device: getDeviceProperties(),
+        location: getLocationProperties(),
+        os: getOSProperties(),
+        screen: getScreenProperties(),
         locale: getEventData(data.locale),
         ip: getRemoteAddress(),
         library: {
-            name: "journifyio-server-gtm",
+            name: 'journifyio-server-gtm',
         },
         session: {
             id: makeNumber(getEventData(data.session_id)),
@@ -1218,28 +1463,101 @@ function getContext(){
 }
 
 function getPageProperties() {
-    const pageKeysMapping = {
-        "referrer": data.page_referrer,
-        "title": data.page_title,
-        "path": data.page_path,
-        "url": data.page_url,
-    };
+    let domainPage = getDomainObject ({
+        'referrer': data.page_referrer,
+        'title': data.page_title,
+        'path': data.page_path,
+        'url': data.page_url,
+        'search': data.page_search,
+    });
 
-    const templatePage =  getEventDataKeys(Object.values(pageKeysMapping));
-    const domainPage = {};
-    for (let key in pageKeysMapping) {
-        const templateKey = pageKeysMapping[key];
-        domainPage[key] = templatePage[templateKey];
-    }
-
-    if (!domainPage.path) {
+    if (!domainPage || !domainPage.path) {
         const parsedUrl = parseUrl(domainPage.url);
         if (parsedUrl) {
+            if (!domainPage) {
+                domainPage = {};
+            }
+
             domainPage.path = parsedUrl.pathname;
         }
     }
 
     return domainPage;
+}
+
+function getAppProperties() {
+    return getDomainObject ({
+        'name': data.app_name,
+        'version': data.app_version,
+    });
+}
+
+function getDeviceProperties() {
+    return getDomainObject ({
+        'id': data.device_id,
+        'advertisingId': data.device_advertising_id,
+        'adTrackingEnabled': data.device_ad_tracking_enabled,
+    });
+}
+
+function getLocationProperties() {
+    return getDomainObject ({
+        'city': data.location_city,
+        'country': data.location_country,
+        'latitude': data.location_latitude,
+        'longitude': data.location_longitude,
+    });
+}
+
+function getOSProperties() {
+    return getDomainObject ({
+        'name': data.os_name,
+        'version': data.os_version,
+    });
+}
+
+
+function getScreenProperties(){
+    let screenObj = getDomainObject ({
+        'width': data.screen_width,
+        'height': data.screen_height,
+        'density': data.screen_density,
+    });
+
+    if (!screenObj || (!screenObj.width && !screenObj.height)) {
+        const resolution = getEventData('screen_resolution');
+        if (resolution) {
+            const arr = resolution.split('x');
+            if (arr && arr.length === 2) {
+                if (!screenObj) {
+                    screenObj = {};
+                }
+
+                screenObj.width = makeNumber(arr[0]);
+                screenObj.height = makeNumber(arr[1]);
+            }
+        }
+    }
+
+    return screenObj;
+}
+
+function getDomainObject(keysMapping) {
+    const templateObject =  getEventDataKeys(Object.values(keysMapping));
+    const domainObject = {};
+    for (let key in keysMapping) {
+        const templateKey = keysMapping[key];
+        const value = templateObject[templateKey];
+        if (value) {
+            domainObject[key] = value;
+        }
+    }
+
+    if (Object.values(domainObject).length === 0) {
+        return null;
+    }
+
+    return domainObject;
 }
 
 function getUtmCampaign() {
@@ -1251,11 +1569,11 @@ function getUtmCampaign() {
     const parsedUrl = parseUrl(url);
     if (parsedUrl && Object.keys(parsedUrl.searchParams || {}).length > 0) {
         const utmKeysMapping = {
-            "source": data.utm_source,
-            "medium": data.utm_medium,
-            "name": data.utm_campaign,
-            "term": data.utm_term,
-            "content": data.utm_content,
+            'source': data.utm_source,
+            'medium': data.utm_medium,
+            'name': data.utm_campaign,
+            'term': data.utm_term,
+            'content': data.utm_content,
         };
 
         let campaignFound = false;
@@ -1367,7 +1685,6 @@ function getEventProperties(eventType) {
         'reward_type',
         'reward_value',
         'score',
-        'screen_resolution',
         'search_term',
         'shipping',
         'shipping_tier',
@@ -1410,7 +1727,7 @@ function getEventProperties(eventType) {
 
     switch (eventType) {
         case 'track':
-            appendProperties(properties, data.additional_event_props);
+            appendProperties(properties, data.additional_track_props);
             break;
         case 'page':
             appendProperties(properties, data.additional_page_props);
@@ -1449,9 +1766,9 @@ function getExternalIDs(userTraits) {
     const potentialExternalIds = {
         phone: userTraits.phone,
         email: userTraits.email,
-        facebook_click_id: getCookieValue("_fbc"),
-        facebook_browser_id: getCookieValue("_fbp"),
-        snapchat_scid: getCookieValue("_scid"),
+        facebook_click_id: getCookieValue('_fbc'),
+        facebook_browser_id: getCookieValue('_fbp'),
+        snapchat_scid: getCookieValue('_scid'),
         snapchat_advertiser_cookie_1: getCookieValue('snapchat_advertiser_cookie_1'),
         snapchat_click_id: searchParams.ScCid,
         tiktok_click_id: searchParams.ttclid,
@@ -1467,7 +1784,7 @@ function getExternalIDs(userTraits) {
             accumulator.push({
                 id: value,
                 type: key,
-                collection: "users",
+                collection: 'users',
             });
         }
 
@@ -1497,7 +1814,7 @@ if (!eventType) {
 
 const timestamp = getTimestampMillis();
 const clientID = getEventData('client_id');
-const userID = getEventData('user_id') || getEventData(data.user_id) || "";
+const userID = getEventData('user_id') || getEventData(data.user_id) || '';
 const messageID = userID + clientID + eventName + timestamp;
 
 const userTraits = getUserTraits();
@@ -1505,27 +1822,38 @@ const event = {
     writeKey: data.write_key,
     type: eventType,
     messageId : messageID,
-    event: eventName,
     anonymousId: getEventData(data.anonymous_id),
     userId: getEventData(data.user_id),
     group_id: getEventData(data.group_id),
     timestampMillis: timestamp,
     externalIds: getExternalIDs(userTraits),
-    traits: getUserTraits(),
     context: getContext(),
     properties: getEventProperties(eventType),
 };
 
-if (eventType === 'page') {
-    event.name = getEventData(data.page_title);
+switch (eventType) {
+    case 'track':
+        event.event = eventName;
+        break;
+
+    case 'page':
+        event.name = getEventData(data.page_name_key);
+        break;
+
+    case 'screen':
+        event.name = getEventData(data.screen_name_key);
+        break;
+
+    default:
+        event.traits = getUserTraits();
 }
 
 // send event
-const apiURL = data.api_url && data.api_url.length > 0 ? data.api_url : "https://t.journify.io";
+const apiURL = data.api_url && data.api_url.length > 0 ? data.api_url : 'https://t.journify.io';
 const queryEndpoint = apiURL + '/v1/' + eventType.charAt(0);
 
 const queryCallback = (statusCode, headers, body) => {
-    log("response", "statusCode: ", statusCode, "body: ", JSON.stringify(body));
+    log('response', 'statusCode: ', statusCode, 'body: ', JSON.stringify(body));
     if (statusCode >= 400) {
         data.gtmOnFailure();
     } else {
