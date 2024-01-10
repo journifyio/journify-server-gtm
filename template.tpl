@@ -1447,7 +1447,7 @@ function getContext(){
         locale: getEventData(data.locale),
         ip: getRemoteAddress(),
         library: {
-            name: 'journifyio-server-gtm',
+            name: 'server/journifyio-server-gtm',
         },
         session: {
             id: makeNumber(getEventData(data.session_id)),
