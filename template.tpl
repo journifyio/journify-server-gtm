@@ -32,13 +32,19 @@ ___TEMPLATE_PARAMETERS___
   {
     "type": "TEXT",
     "name": "write_key",
-    "displayName": "Write key",
+    "displayName": "Write Key",
     "simpleValueType": true,
     "valueValidators": [
       {
         "type": "NON_EMPTY"
       }
     ]
+  },
+  {
+    "type": "TEXT",
+    "name": "api_url",
+    "displayName": "API Host (optional)",
+    "simpleValueType": true
   },
   {
     "type": "GROUP",
@@ -254,7 +260,7 @@ ___TEMPLATE_PARAMETERS___
             "name": "ga4_enhanced_events_enabled",
             "checkboxText": "Include GA4 enhanced-measurement events",
             "simpleValueType": true,
-            "defaultValue": true
+            "defaultValue": false
           },
           {
             "type": "SIMPLE_TABLE",
@@ -359,7 +365,7 @@ ___TEMPLATE_PARAMETERS___
             "name": "ga4_automatic_events_enabled",
             "checkboxText": "Include GA4 automatically-collected events",
             "simpleValueType": true,
-            "defaultValue": true
+            "defaultValue": false
           },
           {
             "type": "SIMPLE_TABLE",
@@ -922,7 +928,9 @@ ___TEMPLATE_PARAMETERS___
             "defaultValue": "",
             "displayName": "ID value",
             "name": "id",
-            "type": "TEXT"
+            "type": "TEXT",
+            "isUnique": true,
+            "valueValidators": []
           },
           {
             "defaultValue": "",
@@ -931,18 +939,18 @@ ___TEMPLATE_PARAMETERS___
             "type": "TEXT"
           },
           {
-            "defaultValue": "",
-            "displayName": "Collection",
-            "name": "collection",
+            "defaultValue": "event_key",
+            "displayName": "Value type",
+            "name": "value_type",
             "type": "SELECT",
             "selectItems": [
               {
-                "value": "users",
-                "displayValue": "users"
+                "value": "event_key",
+                "displayValue": "Event Key"
               },
               {
-                "value": "accounts",
-                "displayValue": "accounts"
+                "value": "raw_value",
+                "displayValue": "Raw value"
               }
             ]
           }
@@ -1336,20 +1344,6 @@ ___TEMPLATE_PARAMETERS___
           }
         ],
         "defaultValue": "screen_density"
-      }
-    ]
-  },
-  {
-    "type": "GROUP",
-    "name": "other_settings",
-    "displayName": "Other settings",
-    "groupStyle": "ZIPPY_CLOSED",
-    "subParams": [
-      {
-        "type": "TEXT",
-        "name": "api_url",
-        "displayName": "API URL (optional)",
-        "simpleValueType": true
       }
     ]
   }
@@ -1777,7 +1771,7 @@ function getExternalIDs(userTraits) {
         google_click_id: searchParams.gclid,
     };
 
-    return Object.entries(potentialExternalIds).reduce(function (accumulator, entry) {
+    const externalIDs = Object.entries(potentialExternalIds).reduce(function (accumulator, entry) {
         const key = entry[0];
         const value = entry[1];
         if (value) {
@@ -1789,7 +1783,27 @@ function getExternalIDs(userTraits) {
         }
 
         return accumulator;
-    }, data.external_ids || []);
+    }, []);
+
+    for (let i = 0; i < data.external_ids.length; i++) {
+        const current = data.external_ids[i];
+        if (current.id && current.id.length > 0) {
+            let id;
+            if (current.type == 'event_key'){
+                id = getEventData(current.id);
+            } else {
+                id = current.id;
+            }
+
+            externalIDs.push({
+                id: id,
+                type: current.type,
+                collection: 'users',
+            });
+        }
+    }
+
+    return externalIDs;
 
 }
 
