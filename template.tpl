@@ -1,12 +1,4 @@
-﻿___TERMS_OF_SERVICE___
-
-By creating or modifying this file you agree to Google Tag Manager's Community
-Template Gallery Developer Terms of Service available at
-https://developers.google.com/tag-manager/gallery-tos (or such other URL as
-Google may provide), as modified from time to time.
-
-
-___INFO___
+﻿___INFO___
 
 {
   "type": "TAG",
@@ -926,17 +918,17 @@ ___TEMPLATE_PARAMETERS___
         "simpleTableColumns": [
           {
             "defaultValue": "",
-            "displayName": "ID value",
-            "name": "id",
-            "type": "TEXT",
-            "isUnique": true,
-            "valueValidators": []
+            "displayName": "ID key (e.g: phone, email)",
+            "name": "key",
+            "type": "TEXT"
           },
           {
             "defaultValue": "",
-            "displayName": "Type (e.g: phone, email)",
-            "name": "type",
-            "type": "TEXT"
+            "displayName": "ID value",
+            "name": "value",
+            "type": "TEXT",
+            "isUnique": true,
+            "valueValidators": []
           },
           {
             "defaultValue": "event_key",
@@ -1775,31 +1767,23 @@ function getExternalIDs(userTraits) {
         const key = entry[0];
         const value = entry[1];
         if (value) {
-            accumulator.push({
-                id: value,
-                type: key,
-                collection: 'users',
-            });
+            accumulator[key] = value;
         }
 
         return accumulator;
-    }, []);
+    }, {});
 
     for (let i = 0; i < data.external_ids.length; i++) {
         const current = data.external_ids[i];
-        if (current.id && current.id.length > 0) {
-            let id;
-            if (current.type == 'event_key'){
-                id = getEventData(current.id);
+        if (current.value && current.value.length > 0) {
+            let value;
+            if (current.value_type == 'event_key'){
+                value = getEventData(current.value);
             } else {
-                id = current.id;
+                value = current.value;
             }
 
-            externalIDs.push({
-                id: id,
-                type: current.type,
-                collection: 'users',
-            });
+            externalIDs[current.key] = value;
         }
     }
 
